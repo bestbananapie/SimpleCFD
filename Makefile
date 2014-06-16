@@ -11,15 +11,20 @@ include config.mk
 .PHONY: all clean
 
 # Build all of the executable files
-EXECUTABLES = iofunctions 
-TARGET= cfd
+EXECUTABLES = iofunctions.o SimpleCFD.o
+TARGET= SimpleCFD
 
 # Makefile rules
 all: $(TARGET)
+
 iofunctions.o : iofunctions.c
-				$(CC) $(CFLAGS) -c $^ -o iofunctions.o
-$(TARGET): main.c
-				$(CC) $(CFLAGS) $^ -o $(TARGET)
+				$(CC) $(CFLAGS) -c $^ -o $@
+
+SimpleCFD.o : SimpleCFD.c
+				$(CC) $(CFLAGS) -c $^ -o $@
+
+$(TARGET) : $(EXECUTABLES)
+				$(CC) $^ -o $(TARGET)
 
 clean:
 	rm -f *.o

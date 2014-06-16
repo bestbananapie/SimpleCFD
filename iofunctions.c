@@ -1,6 +1,12 @@
+
+#include "SimpleCFD.h"
 #include "iofunctions.h"
 
-void print_file(data *d, char *filename) {
+#include <stdio.h>
+#include <stdlib.h>
+
+int print_file(fieldStruct *d, meshStruct *mesh, char *filename) {
+    int i,j,k;
     FILE * fp;
     fp = fopen(filename,"w");
     fprintf(fp, "# vtk DataFile Version 2.0\n"
@@ -9,7 +15,7 @@ void print_file(data *d, char *filename) {
                 "DATASET STRUCTURED_POINTS\n"
                 "DIMENSIONS %d %d %d\n"
                 "ORIGIN %f %f %f\n"
-                "SPACING %f %f %f\n\n",X_POINTS,Y_POINTS,Z_POINTS,0.0,0.0,0.0,dx,dy,dz);
+                "SPACING %f %f %f\n\n",X_POINTS,Y_POINTS,Z_POINTS,0.0,0.0,0.0,mesh->dx,mesh->dy,mesh->dz);
 
     fprintf(fp, "POINT_DATA %d\n"
                 "SCALARS %s float 1\n"
@@ -21,7 +27,7 @@ void print_file(data *d, char *filename) {
                 fprintf(fp,"%.1f ",d->p[i][j][k]);
             }
             fprintf(fp,"\n");
-        } 
+        }
     }
 
     fprintf(fp, "VECTORS %s float\n","Velocity");
@@ -30,8 +36,10 @@ void print_file(data *d, char *filename) {
             for(i=0; i < X_POINTS; i++){
                 fprintf(fp,"%.1f %.1f %.1f \n",d->u[i][j][k], d->v[i][j][k], d->w[i][j][k]);
             }
-        } 
+        }
 
     }
     fclose(fp);
+
+    return 1;
 }

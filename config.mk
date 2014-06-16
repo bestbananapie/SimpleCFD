@@ -12,7 +12,7 @@ CXX=g++
 CC=colorgcc
 
 # Flags for the C++ compiler
-CFLAGS=-Wall -ansi -pedantic -O3
+CFLAGS=-g -Wpointer-arith -Wshadow -Werror -Winit-self -Wextra -Wfloat-equal -Wall -ansi -pedantic -O3
 
 # Relative include and library paths for compilation of the examples
 E_INC=-I./src_voro++
