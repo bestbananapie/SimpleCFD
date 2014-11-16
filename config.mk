@@ -9,7 +9,7 @@
 
 # C++ compiler
 CXX=g++
-CC=colorgcc
+CC=gcc
 
 # Flags for the C++ compiler
 CFLAGS=-g -Wpointer-arith -Wshadow -Werror -Winit-self -Wextra -Wfloat-equal -Wall -ansi -pedantic -O3
