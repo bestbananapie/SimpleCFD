@@ -81,9 +81,13 @@ double res_continuity(fieldStruct *d, meshStruct *mesh) {
   return sum;
 }
 
-void print_usage() {
-  printf("Usage: SimpleCFD -d [Results Directory]");
+void print_opthelp() {
+  printf("Arguments: \n");
+  printf("%-15s : %s\n", "-v or -verbose", "Prints all information to console");
+  printf("%-15s : %s\n", "-d or -dir", "Directory to save result files");
+  printf("%-15s : %s\n", "-h or -help", "Print help file");
 }
+
 
 int main(int argc, char **argv){
   int opt = 0;
@@ -101,13 +105,13 @@ int main(int argc, char **argv){
   static struct option long_options[] = {
     {"directory", required_argument, 0, 'd'},
     {"verbose", no_argument, 0, 'v'},
-    {"help", no_argument, 0, 'h'},
-    {0,0,0,0}
+    {"help", no_argument, 0, 'h'}
   };
 
   /* If no arguments are given */
   if (argc == 1) {
-    puts("No Arguments");
+    printf("No Arguments given\n");
+    print_opthelp();
   }
 
   /* Process Given Arguments */
@@ -116,7 +120,7 @@ int main(int argc, char **argv){
       /* Possible Options */
       switch (opt) {
         case 'h':
-          puts("Help is blashdfasd");
+          print_opthelp();
           break;
         case 'v':
           puts("Console Output Enabled");
@@ -125,15 +129,11 @@ int main(int argc, char **argv){
           printf("option -d with value %s \n", optarg);
           break;
         case '?' :
-          puts("Help shit goes here\n");
-          break;
-        default :
-          puts ("Default Options will be used\n");
+          printf("Unrecognised option\n");
+          print_opthelp();
           break;
       }
-
-}
-
+  }
 /******************************************************************************/
 /* Initialise Variables                                                       */
 /******************************************************************************/
