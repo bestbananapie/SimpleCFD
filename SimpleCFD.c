@@ -1,14 +1,28 @@
+/*!
+ * @author Simon Lee
+ * @file SimpleCFD.c
+ * @email silee001@gmail.com
+ * @brief Main program of simple CFD
+ */
+
 #include "SimpleCFD.h"
 #include "iofunctions.h"
 
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <getopt.h>
 
 int i,j,k,t;
 
 const double dens = 1000;
 const double visco = 0.001002;
 
+/*!
+ * @brief Initialises the Beauty!
+ *
+ *
+*/
 void intialise(fieldStruct *d) {
   for(k=0; k < Z_POINTS; k++){
     for(j=0; j < Y_POINTS; j++){
@@ -67,14 +81,62 @@ double res_continuity(fieldStruct *d, meshStruct *mesh) {
   return sum;
 }
 
-int main(){
-/******************************************************************************/
-/* Initialise Variables                                                       */
-/******************************************************************************/
-  char filename[100];
+void print_usage() {
+  printf("Usage: SimpleCFD -d [Results Directory]");
+}
+
+int main(int argc, char **argv){
+  int opt = 0;
+
   fieldStruct d, d_old;
   meshStruct mesh;
   int print_succesful;
+  char filename[100];
+
+
+/******************************************************************************/
+/* Process Variables                                                          */
+/******************************************************************************/
+  int option_index = 0;
+  static struct option long_options[] = {
+    {"directory", required_argument, 0, 'd'},
+    {"verbose", no_argument, 0, 'v'},
+    {"help", no_argument, 0, 'h'},
+    {0,0,0,0}
+  };
+
+  /* If no arguments are given */
+  if (argc == 1) {
+    puts("No Arguments");
+  }
+
+  /* Process Given Arguments */
+  while ( (opt = getopt_long_only(argc, argv, "hvd:", long_options, &option_index)) != -1) {
+
+      /* Possible Options */
+      switch (opt) {
+        case 'h':
+          puts("Help is blashdfasd");
+          break;
+        case 'v':
+          puts("Console Output Enabled");
+          break;
+        case 'd':
+          printf("option -d with value %s \n", optarg);
+          break;
+        case '?' :
+          puts("Help shit goes here\n");
+          break;
+        default :
+          puts ("Default Options will be used\n");
+          break;
+      }
+
+}
+
+/******************************************************************************/
+/* Initialise Variables                                                       */
+/******************************************************************************/
 
   printf("************************************************************\n");
   printf("***   Starting SimpleCFD                                 ***\n");
