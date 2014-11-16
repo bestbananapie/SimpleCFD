@@ -1,3 +1,9 @@
+/*!
+ * @author Simon Lee
+ * @email silee001@gmail.com
+ * @file iofunctions.c
+ * @brief Common Routines for input output functions 
+ */
 
 #include "SimpleCFD.h"
 #include "iofunctions.h"
@@ -5,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* Check Header File for documentation */
 int print_file(fieldStruct *d, meshStruct *mesh, char *filename) {
     int i,j,k;
     FILE * fp;
