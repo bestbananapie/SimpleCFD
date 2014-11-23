@@ -10,10 +10,13 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <getopt.h>
 
 int i,j,k,t;
+int verbose = 0;
+char dir[255] = "";
 
 const double dens = 1000;
 const double visco = 0.001002;
@@ -123,9 +126,11 @@ int main(int argc, char **argv){
           print_opthelp();
           break;
         case 'v':
+          verbose = 1;
           puts("Console Output Enabled");
           break;
         case 'd':
+          sprintf(dir,"./%s/",optarg);
           printf("option -d with value %s \n", optarg);
           break;
         case '?' :
@@ -137,10 +142,11 @@ int main(int argc, char **argv){
 /******************************************************************************/
 /* Initialise Variables                                                       */
 /******************************************************************************/
-
-  printf("************************************************************\n");
-  printf("***   Starting SimpleCFD                                 ***\n");
-  printf("************************************************************\n");
+  if(verbose == 1){
+    printf("************************************************************\n");
+    printf("***   Starting SimpleCFD                                 ***\n");
+    printf("************************************************************\n");
+  }
 
   mesh.dx =(double) X_SIZE/X_POINTS;
   mesh.dy =(double) Y_SIZE/Y_POINTS;
@@ -151,8 +157,10 @@ int main(int argc, char **argv){
 /* Outer Loop                                                                 */
 /******************************************************************************/
   for(t=0; t < T_POINTS; t++) {
-    printf("*   Processing Timestep: %6f                          *\n",t*mesh.dt);
-    printf("************************************************************\n");
+    if(verbose == 1){
+      printf("*   Processing Timestep: %6f                          *\n",t*mesh.dt);
+      printf("************************************************************\n");
+    }
     if ( t==0 ) {
       intialise(&d);
     }
@@ -161,8 +169,11 @@ int main(int argc, char **argv){
       d=d_old;
     }
 
-    printf("Continuity Residual: %f\n",res_continuity(&d, &mesh));
-    sprintf(filename, "grid_%d.vtk",t);
+    if(verbose == 1){
+      printf("Continuity Residual: %f\n",res_continuity(&d, &mesh));
+    }
+
+    sprintf(filename, "%sgrid_%d.vtk",dir,t);
     print_succesful = print_file(&d, &mesh, filename);
     if (print_succesful != 1) fprintf(stderr, "Unable to print\n");
     d_old = d;

@@ -1,30 +1,14 @@
-# CFD Make File
-# Common Configuration File
-# Author   : Simon Lee (Imperial College)
-# Email    : sel210@ic.ac.uk
-# Date     : November 24th 2013
-
-# Include the common configuration file
-include config.mk
-
-# Tell make that these are phony targets
-.PHONY: all clean
+.PHONY: all doc clean
 
 # Build all of the executable files
-EXECUTABLES = iofunctions.o SimpleCFD.o
-TARGET= SimpleCFD
+all:
+	$(MAKE) -C src
 
-# Makefile rules
-all: $(TARGET)
+# Build Doxygen
+doc:
+	$(MAKE) -C doxygen
 
-iofunctions.o : iofunctions.c
-				$(CC) $(CFLAGS) -c $^ -o $@
-
-SimpleCFD.o : SimpleCFD.c
-				$(CC) $(CFLAGS) -c $^ -o $@
-
-$(TARGET) : $(EXECUTABLES)
-				$(CC) $^ -o $(TARGET)
-
+# Clean up the executable files
 clean:
-	rm -f *.o
+	$(MAKE) -C src clean
+	$(MAKE) -C doxygen clean
