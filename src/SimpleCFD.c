@@ -20,7 +20,63 @@ char dir[255] = "";
 
 const double dens = 1000;
 const double visco = 0.001002;
+void solver(fieldStruct *d, fieldStruct *d_old, meshStruct *mesh)
+{
+  int n;
+  (void) mesh;
 
+  for(n=0; n < 1000; n++)
+  {
+    for(k=0; k < Z_POINTS; k++)
+    {
+      for(j=0; j < Y_POINTS; j++)
+      {
+        for(i=0; i < X_POINTS; i++)
+        {
+          if ( i == 0 || j==0 || i==X_POINTS-1 || j==Y_POINTS-1 )
+          {
+            if ( INLET_MIN <= i && i <= INLET_MAX && j==0)
+            {
+              d->u[i][j][k]=0;
+              d->v[i][j][k]=100*(sin( (double) t/T_POINTS * M_PI));
+              d->w[i][j][k]=0;
+              d->p[i][j][k]=0;
+            }
+            else if ( OUTLET_MIN <=i && i <= OUTLET_MAX && j==0)
+            {
+              d->u[i][j][k]=0;
+              d->v[i][j][k]=-100 * (sin( (double) t/T_POINTS * M_PI));
+              d->w[i][j][k]=0;
+              d->p[i][j][k]=0;
+            }
+            else
+            {
+              d->u[i][j][k]=0;
+              d->v[i][j][k]=0;
+              d->w[i][j][k]=0;
+              d->p[i][j][k]=0;
+            }
+
+          }
+          else
+          {
+            d->u[i][j][k]=0.2*d_old->u[i][j][k] + 0.6*(d->u[i-1][j-1][k]
+                                                      +d->u[i-1][j+1][k]
+                                                      +d->u[i+1][j-1][k]
+                                                      +d_old->u[i+1][j+1][k])/4;
+            d->v[i][j][k]=0.2*d_old->v[i][j][k] + 0.6*(d->v[i-1][j-1][k]
+                                                      +d->v[i-1][j+1][k]
+                                                      +d_old->v[i+1][j-1][k]
+                                                      +d_old->v[i+1][j+1][k])/4;
+            d->w[i][j][k]=0;
+            d->p[i][j][k]=0;
+          }
+        }
+      }
+    }
+    d_old = d;
+  }
+}
 /*!
  * @brief Initialises the Beauty!
  *
@@ -33,15 +89,15 @@ void intialise(fieldStruct *d) {
         if ( i == 0 || j==0 || k==0 || i==X_POINTS-1 || j==Y_POINTS-1 || k==Z_POINTS-1){
           if ( INLET_MIN <= i && i <= INLET_MAX && j==0) {
             d->u[i][j][k]=0;
-            d->v[i][j][k]=1000000;
+            d->v[i][j][k]=1;
             d->w[i][j][k]=0;
             d->p[i][j][k]=0;
           }
           else if ( OUTLET_MIN <=i && i <= OUTLET_MAX && j==0){
             d->u[i][j][k]=0;
-            d->v[i][j][k]=0;
+            d->v[i][j][k]=-1;
             d->w[i][j][k]=0;
-            d->p[i][j][k]=10;
+            d->p[i][j][k]=0;
           }
           else {
             d->u[i][j][k]=0;
@@ -165,9 +221,7 @@ int main(int argc, char **argv){
       intialise(&d);
     }
 
-    else {
-      d=d_old;
-    }
+    solver(&d,&d_old,&mesh); 
 
     if(verbose == 1){
       printf("Continuity Residual: %f\n",res_continuity(&d, &mesh));

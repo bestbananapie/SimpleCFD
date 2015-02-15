@@ -7,7 +7,7 @@
 #define X_SIZE 0.1
 #define Y_SIZE 0.1
 #define Z_SIZE 0.01
-#define T_SIZE 1
+#define T_SIZE 4
 
 /******************************************************************************
 * Grid Settings 
@@ -15,12 +15,12 @@
 #define X_POINTS 100
 #define Y_POINTS 100
 #define Z_POINTS 3
-#define T_POINTS 10
+#define T_POINTS 40
 
 /******************************************************************************
 * Inlet/Outlet Conditions 
 ******************************************************************************/
 #define INLET_MIN 0
-#define INLET_MAX 10
-#define OUTLET_MIN 90
+#define INLET_MAX 45
+#define OUTLET_MIN 55
 #define OUTLET_MAX 100
