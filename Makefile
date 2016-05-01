@@ -1,14 +1,15 @@
-.PHONY: all doc clean
 
-# Build all of the executable files
-all:
-	$(MAKE) -C src
+.PHONY: all doc
+	
+# Output the Source Code
+all: SimpleCFD.w
+	mkdir -p src
+	nuweb -t -p src $^
 
-# Build Doxygen
-doc:
-	$(MAKE) -C doxygen
+	
+# Make the documents
+doc: SimpleCFD.w
+	mkdir -p doc
+	nuweb -o -p doc $^
+	pdflatex --output-directory doc $(basename $^).tex
 
-# Clean up the executable files
-clean:
-	$(MAKE) -C src clean
-	$(MAKE) -C doxygen clean

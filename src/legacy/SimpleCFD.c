@@ -1,9 +1,3 @@
-/*!
- * @author Simon Lee
- * @file SimpleCFD.c
- * @email silee001@gmail.com
- * @brief Main program of simple CFD
- */
 
 #include "SimpleCFD.h"
 #include "iofunctions.h"
@@ -77,11 +71,6 @@ void solver(fieldStruct *d, fieldStruct *d_old, meshStruct *mesh)
     d_old = d;
   }
 }
-/*!
- * @brief Initialises the Beauty!
- *
- *
-*/
 void intialise(fieldStruct *d) {
   for(k=0; k < Z_POINTS; k++){
     for(j=0; j < Y_POINTS; j++){
