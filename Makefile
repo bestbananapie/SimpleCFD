@@ -1,10 +1,12 @@
 
+#Define phony targets
 .PHONY: all doc
 	
 # Output the Source Code
 all: SimpleCFD.w
 	mkdir -p src
 	nuweb -t -p src $^
+	$(MAKE) -C src
 
 	
 # Make the documents

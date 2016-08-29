@@ -1,0 +1,786 @@
+\newcommand{\NWtarget}[2]{#2}
+\newcommand{\NWlink}[2]{#2}
+\newcommand{\NWtxtMacroDefBy}{Fragment defined by}
+\newcommand{\NWtxtMacroRefIn}{Fragment referenced in}
+\newcommand{\NWtxtMacroNoRef}{Fragment never referenced}
+\newcommand{\NWtxtDefBy}{Defined by}
+\newcommand{\NWtxtRefIn}{Referenced in}
+\newcommand{\NWtxtNoRef}{Not referenced}
+\newcommand{\NWtxtFileDefBy}{File defined by}
+\newcommand{\NWtxtIdentsUsed}{Uses:}
+\newcommand{\NWtxtIdentsNotUsed}{Never used}
+\newcommand{\NWtxtIdentsDefed}{Defines:}
+\newcommand{\NWsep}{${\diamond}$}
+\newcommand{\NWnotglobal}{(not defined globally)}
+\newcommand{\NWuseHyperlinks}{}
+\documentclass[a4paper,11pt]{article}
+\newcommand{\programname}{SimpleCFD }
+
+%Better margins
+    \usepackage[left=1in, right=1in, top=1.5in, bottom=1.5in]{geometry}
+
+%Better Font
+    \usepackage{lmodern}
+    \usepackage[T1]{fontenc}
+
+% Smartter text spacing
+    \usepackage{microtype}
+
+% Format paragraphs without indentation
+\usepackage[parfill]{parskip}
+
+% Create Todos
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+
+%Create links in PDF
+    \usepackage[hidelinks]{hyperref}
+
+\title{\programname}
+\author{Simon Lee}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Todos}
+\listoftodos
+\section{Introduction}
+
+I have long had the idea to write my own, but very simple, CFD solver.
+
+My initial goal is the solve for the case of a flow through a rectangular box/duct. The only reason for this is that the grid/mesh should be very easy.
+
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap1}\raggedright\small
+\NWtarget{nuweb3}{} \verb@"main.c"@\nobreak\ {\footnotesize {3}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#include "mesh.h"@\\
+\mbox{}\verb@#include <stdio.h>@\\
+\mbox{}\verb@int main(void){@\\
+\mbox{}\verb@    struct_mesh mesh;@\\
+\mbox{}\verb@    generate_mesh(&mesh);@\\
+\mbox{}\verb@    mesh_print_vtk(&mesh,"test.vtk");@\\
+\mbox{}\verb@    printf("Hello World %d %d\n",mesh.num_points, mesh.num_cells);@\\
+\mbox{}\verb@    return 0;@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\newpage
+\section{mesh}
+
+\subsection{Introduction}
+The code only works with rectagular cells in an unstructured grid. The mesh is defined by a point cloud and each cell has 8 nodes.
+
+Each node is defined by a 3 dimensional vector.
+
+
+\subsubsection{Data Structure}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap2}\raggedright\small
+\NWtarget{nuweb4}{} $\langle\,${\itshape mesh-data-structures}\nobreak\ {\footnotesize {4}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@typedef struct {@\\
+\mbox{}\verb@    int vtk_type;@\\
+\mbox{}\verb@    int *nodes;@\\
+\mbox{}\verb@} struct_cell;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@typedef struct {@\\
+\mbox{}\verb@    int num_points;@\\
+\mbox{}\verb@    int num_cells;@\\
+\mbox{}\verb@    float scale;@\\
+\mbox{}\verb@    int **points;@\\
+\mbox{}\verb@    struct_cell *cells;@\\
+\mbox{}\verb@    int mem_allocated;@\\
+\mbox{}\verb@} struct_mesh;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@typedef struct {@\\
+\mbox{}\verb@    int num_points;@\\
+\mbox{}\verb@    int num_cells;@\\
+\mbox{}\verb@    float scale;@\\
+\mbox{}\verb@    int **points;@\\
+\mbox{}\verb@    struct_cell *cells;@\\
+\mbox{}\verb@    int mem_allocated;@\\
+\mbox{}\verb@} struct_domain;@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb12a}{12a}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsubsection{Mesh Definition}
+\todo{Mesh definition to be input at runtime.}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap3}\raggedright\small
+\NWtarget{nuweb5}{} $\langle\,${\itshape mesh-def}\nobreak\ {\footnotesize {5}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@    int domain_min[3];@\\
+\mbox{}\verb@    int domain_max[3];@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    int domain_seedsize[3];@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    domain_min[0] = 0;@\\
+\mbox{}\verb@    domain_min[1] = 0;@\\
+\mbox{}\verb@    domain_min[2] = 0;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    domain_max[0] = 20;@\\
+\mbox{}\verb@    domain_max[1] = 10;@\\
+\mbox{}\verb@    domain_max[2] = 10;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    /* this is actually half delta */@\\
+\mbox{}\verb@    domain_seedsize[0] = 5;@\\
+\mbox{}\verb@    domain_seedsize[1] = 5;@\\
+\mbox{}\verb@    domain_seedsize[2] = 5;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    mesh->num_points = 0;@\\
+\mbox{}\verb@    mesh->num_cells = 0;@\\
+\mbox{}\verb@    mesh->scale = 1e-3;@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb8}{8}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsection{Generating Mesh}
+
+\subsubsection{Generating Vertex List}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap4}\raggedright\small
+\NWtarget{nuweb6}{} $\langle\,${\itshape generate-mesh-vertex}\nobreak\ {\footnotesize {6}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@/* Generate Vertices */@\\
+\mbox{}\verb@    p = 0;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    pos[0] = 0;@\\
+\mbox{}\verb@    pos[1] = 0;@\\
+\mbox{}\verb@    pos[2] = 0;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    while(pos[2] <= domain_max[2]){@\\
+\mbox{}\verb@        while(pos[1] <= domain_max[1]){@\\
+\mbox{}\verb@            while(pos[0] <= domain_max[0]){@\\
+\mbox{}\verb@                points[p][0] = pos[0];@\\
+\mbox{}\verb@                points[p][1] = pos[1];@\\
+\mbox{}\verb@                points[p][2] = pos[2];@\\
+\mbox{}\verb@                p++;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@                /* Increment position */@\\
+\mbox{}\verb@                pos[0] += domain_seedsize[0];@\\
+\mbox{}\verb@                ++vertex_count[0];@\\
+\mbox{}\verb@            }@\\
+\mbox{}\verb@            pos[1] += domain_seedsize[1];@\\
+\mbox{}\verb@            ++vertex_count[1];@\\
+\mbox{}\verb@        }@\\
+\mbox{}\verb@        pos[2] += domain_seedsize[2];@\\
+\mbox{}\verb@        ++vertex_count[2];@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb8}{8}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap5}\raggedright\small
+\NWtarget{nuweb7}{} $\langle\,${\itshape generate-mesh-cells}\nobreak\ {\footnotesize {7}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@/* Create Cells */@\\
+\mbox{}\verb@    for(c=0; c < mesh->num_cells ; c++){@\\
+\mbox{}\verb@        cells[c].nodes = malloc(9*sizeof(int));@\\
+\mbox{}\verb@        cells[c].vtk_type = 11;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@        n = 0;@\\
+\mbox{}\verb@        while(pos[2] <= domain_max[2]){@\\
+\mbox{}\verb@            while(pos[1] <= domain_max[1]){@\\
+\mbox{}\verb@                while(pos[0] <= domain_max[0]){@\\
+\mbox{}\verb@                    xindex = (int) (x-xmin)/(2*dx);  @\\
+\mbox{}\verb@                    yindex = (int) (y-ymin)/(2*dy);  @\\
+\mbox{}\verb@                    zindex = (int) (z-zmin)/(2*dz);  @\\
+\mbox{}\verb@                    cells[c].nodes[n]  = zindex * (xcount+1) * (ycount*1);@\\
+\mbox{}\verb@                    cells[c].nodes[n] += yindex * (xcount+1);@\\
+\mbox{}\verb@                    cells[c].nodes[n] += xindex;@\\
+\mbox{}\verb@                    n++;@\\
+\mbox{}\verb@                }@\\
+\mbox{}\verb@            }@\\
+\mbox{}\verb@        }@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb8}{8}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap6}\raggedright\small
+\NWtarget{nuweb8}{} $\langle\,${\itshape func-generate-mesh}\nobreak\ {\footnotesize {8}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@int generate_mesh(struct_domain * domain, struct_mesh * mesh){@\\
+\mbox{}\verb@    int n,c,p;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    int pos[3];@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    int xindex;@\\
+\mbox{}\verb@    int yindex;@\\
+\mbox{}\verb@    int zindex;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    int **points;@\\
+\mbox{}\verb@    struct_cell *cells;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    int vertex_count[0] = 0;@\\
+\mbox{}\verb@    int vertex_count[1] = 0;@\\
+\mbox{}\verb@    int vertex_count[2] = 0;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    @\hbox{$\langle\,${\itshape mesh-def}\nobreak\ {\footnotesize \NWlink{nuweb5}{5}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    printf("mesh points %d\n", mesh->num_points);@\\
+\mbox{}\verb@    printf("mesh cells %d\n", mesh->num_cells);@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@/* Mememory Allocation */@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@    // Lets guess a mesh size...@\\
+\mbox{}\verb@    mesh->num_points = (vertex_count[0]+1)*(vertex_count[1]+1)*(vertex_count[2]+1)@\\
+\mbox{}\verb@    mesh->num_cells = xcount * ycount * zcount;@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    //... and allocate it@\\
+\mbox{}\verb@    mesh->mem_allocated = 0;@\\
+\mbox{}\verb@    mesh_mem_allocate(mesh);@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    @\hbox{$\langle\,${\itshape generate-mesh-vertex}\nobreak\ {\footnotesize \NWlink{nuweb6}{6}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    @\hbox{$\langle\,${\itshape generate-mesh-cells}\nobreak\ {\footnotesize \NWlink{nuweb7}{7}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    mesh->points = points;@\\
+\mbox{}\verb@    mesh->cells = cells;@\\
+\mbox{}\verb@    return 0;@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb12b}{12b}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsubsection{Dynamic Memory Allocation}
+
+\paragraph{Memory Allocation}
+Memory for the mesh get allocations based on the number of vertices and cells stored within the mesh data structure.
+\todo{Reallocate memory for mesh}
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap7}\raggedright\small
+\NWtarget{nuweb9a}{} $\langle\,${\itshape mesh-mem-allocation}\nobreak\ {\footnotesize {9a}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@/* Allocate memory for mesh */@\\
+\mbox{}\verb@int mesh_mem_allocate(struct_mesh * mesh){@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    if(mesh->mem_allocated ==0){@\\
+\mbox{}\verb@        /* Allocate Memeory for Points */@\\
+\mbox{}\verb@        mesh->points = malloc(mesh->num_points*sizeof(*points) + mesh->num_points*3*sizeof(**points));@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@        int *data;@\\
+\mbox{}\verb@        data = &points[mesh->num_points];@\\
+\mbox{}\verb@        for(n=0; n < mesh->num_points; n++){@\\
+\mbox{}\verb@            points[n] = data + n * 3;@\\
+\mbox{}\verb@        }@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@        /* Allocate Memeory for Cells */@\\
+\mbox{}\verb@        cells = malloc(mesh->num_cells*sizeof(*cells));@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@        mesh->mem_allocated = 1;@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@    else {@\\
+\mbox{}\verb@        /* Reallocate Memory */@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@   @\\
+\mbox{}\verb@   return 0;@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb12b}{12b}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\paragraph{Free Memory}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap8}\raggedright\small
+\NWtarget{nuweb9b}{} $\langle\,${\itshape mesh-mem-free}\nobreak\ {\footnotesize {9b}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@/* Free memory allocated to mesh */@\\
+\mbox{}\verb@int mesh_mem_free(struct_mesh * mesh){@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@   free(mesh->points)@\\
+\mbox{}\verb@   free(mesh->cells)@\\
+\mbox{}\verb@   return 0;@\\
+\mbox{}\verb@}@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb12b}{12b}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsection{Exporting Mesh}
+The mesh can be exported to a vtk file format to be read in Paraview.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap9}\raggedright\small
+\NWtarget{nuweb10a}{} $\langle\,${\itshape func-mesh-print-vtk}\nobreak\ {\footnotesize {10a}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@#Export mesh to VTK@\\
+\mbox{}\verb@int mesh_print_vtk(struct_mesh *mesh, char *filename) {@\\
+\mbox{}\verb@    int n;@\\
+\mbox{}\verb@    FILE * fp;@\\
+\mbox{}\verb@    fp = fopen(filename,"w");@\\
+\mbox{}\verb@    @\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape snippet-mesh-print-vtk-header}\nobreak\ {\footnotesize \NWlink{nuweb10b}{10b}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape snippt-mesh-print-vtk-vertices}\nobreak\ {\footnotesize \NWlink{nuweb11a}{11a}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape snippt-mesh-print-vtk-cells}\nobreak\ {\footnotesize \NWlink{nuweb11b}{11b}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    fclose(fp);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    return 0;@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb12b}{12b}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsubsection{VTK Header}
+It currently defaults to an unstructed grid
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap10}\raggedright\small
+\NWtarget{nuweb10b}{} $\langle\,${\itshape snippet-mesh-print-vtk-header}\nobreak\ {\footnotesize {10b}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@/* Print file header */@\\
+\mbox{}\verb@    fprintf(fp, "# vtk DataFile Version 2.0\n"@\\
+\mbox{}\verb@                "SimpleCFD VTK Output\n"@\\
+\mbox{}\verb@                "ASCII\n"@\\
+\mbox{}\verb@                "DATASET UNSTRUCTURED_GRID\n");@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb10a}{10a}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsubsection{Print Vertices}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap11}\raggedright\small
+\NWtarget{nuweb11a}{} $\langle\,${\itshape snippt-mesh-print-vtk-vertices}\nobreak\ {\footnotesize {11a}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@/* Print Vertices */@\\
+\mbox{}\verb@    fprintf(fp, "\nPOINTS %d FLOAT\n", mesh->num_points);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    for(n=0; n < mesh->num_points; n++){@\\
+\mbox{}\verb@        fprintf(fp, "%+e %+e %+e\n", (float) mesh->points[n][0] * mesh->scale,@\\
+\mbox{}\verb@                                     (float) mesh->points[n][1] * mesh->scale,@\\
+\mbox{}\verb@                                     (float) mesh->points[n][2] * mesh->scale);@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb10a}{10a}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsubsection{Printing Cells Information}
+Each cell is defined by 8 vertices. Type 12 refers to a VTK relationship between nodes.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap12}\raggedright\small
+\NWtarget{nuweb11b}{} $\langle\,${\itshape snippt-mesh-print-vtk-cells}\nobreak\ {\footnotesize {11b}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@/* Print Cell Information */@\\
+\mbox{}\verb@    fprintf(fp, "\nCELLS %d %d \n", mesh->num_cells, mesh->num_cells * 9);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    for(n=0; n < mesh->num_cells; n++){@\\
+\mbox{}\verb@        fprintf(fp, "8 %d %d %d %d %d %d %d %d\n", mesh->cells[n].nodes[0],@\\
+\mbox{}\verb@                                                   mesh->cells[n].nodes[1],@\\
+\mbox{}\verb@                                                   mesh->cells[n].nodes[2],@\\
+\mbox{}\verb@                                                   mesh->cells[n].nodes[3],@\\
+\mbox{}\verb@                                                   mesh->cells[n].nodes[4],@\\
+\mbox{}\verb@                                                   mesh->cells[n].nodes[5],@\\
+\mbox{}\verb@                                                   mesh->cells[n].nodes[6],@\\
+\mbox{}\verb@                                                   mesh->cells[n].nodes[7]);@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@/* Print Cell Types */@\\
+\mbox{}\verb@    fprintf(fp, "\nCELL_TYPES %d \n", mesh->num_cells);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@    for(n=0; n < mesh->num_cells; n++){@\\
+\mbox{}\verb@        fprintf(fp, "12 \n");@\\
+\mbox{}\verb@    }@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb10a}{10a}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsection{Source file}
+All the functions get written to a common source file.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap13}\raggedright\small
+\NWtarget{nuweb12a}{} \verb@"mesh.h"@\nobreak\ {\footnotesize {12a}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#ifndef MESH_H@\\
+\mbox{}\verb@#define MESH_H@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape mesh-data-structures}\nobreak\ {\footnotesize \NWlink{nuweb4}{4}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@int generate_mesh(struct_mesh * mesh);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@int mesh_print_vtk(struct_mesh *mesh, char *filename);@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@#endif@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap14}\raggedright\small
+\NWtarget{nuweb12b}{} \verb@"mesh.c"@\nobreak\ {\footnotesize {12b}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#include "mesh.h" @\\
+\mbox{}\verb@#include <stdio.h>@\\
+\mbox{}\verb@#include <stdlib.h>@\\
+\mbox{}\verb@#include <math.h>@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape mesh-mem-free}\nobreak\ {\footnotesize \NWlink{nuweb9b}{9b}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape mesh-mem-allocation}\nobreak\ {\footnotesize \NWlink{nuweb9a}{9a}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape func-generate-mesh}\nobreak\ {\footnotesize \NWlink{nuweb8}{8}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\hbox{$\langle\,${\itshape func-mesh-print-vtk}\nobreak\ {\footnotesize \NWlink{nuweb10a}{10a}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\section{preprocessor}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap15}\raggedright\small
+\NWtarget{nuweb12c}{} $\langle\,${\itshape preprocessor.c}\nobreak\ {\footnotesize {12c}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item {\NWtxtMacroNoRef}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\section{postprocessor}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap16}\raggedright\small
+\NWtarget{nuweb13a}{} $\langle\,${\itshape postprocessor.c}\nobreak\ {\footnotesize {13a}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item {\NWtxtMacroNoRef}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\section{Solver}
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap17}\raggedright\small
+\NWtarget{nuweb13b}{} $\langle\,${\itshape solver.c}\nobreak\ {\footnotesize {13b}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item {\NWtxtMacroNoRef}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\appendix
+
+\section{Utilities}
+To automate working with \programname, a few utilities have been created.
+
+\programname uses GNU Make to generate all the required files. It is used to
+produce to produce the document and source files and compile as required. 
+
+\subsection{Root Makefile}
+The makefile that sits in the root directory of the project has targets to allow
+it to compile the source, documentation and clean temporary files. By default it
+outputs the source code.
+
+
+%supress tab expansion and scrap indentation
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap18}\raggedright\small
+\NWtarget{nuweb13c}{} \verb@"../Makefile"@\nobreak\ {\footnotesize {13c}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@#Define phony targets@\\
+\mbox{}\verb@.PHONY: all doc@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@# Output the Source Code@\\
+\mbox{}\verb@all: SimpleCFD.w@\\
+\mbox{}\verb@        @\hbox{$\langle\,${\itshape make-src}\nobreak\ {\footnotesize \NWlink{nuweb14a}{14a}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@# Make the documents@\\
+\mbox{}\verb@doc: SimpleCFD.w@\\
+\mbox{}\verb@        @\hbox{$\langle\,${\itshape make-doc}\nobreak\ {\footnotesize \NWlink{nuweb14b}{14b}}$\,\rangle$}\verb@@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsubsection{Source Output}
+The all target 'TANGLES' the source text into the src folder with nuweb and
+executes make within the source folder. It also explicitly scaffolds folders as necessary. 
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap19}\raggedright\small
+\NWtarget{nuweb14a}{} $\langle\,${\itshape make-src}\nobreak\ {\footnotesize {14a}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@        mkdir -p src@\\
+\mbox{}\verb@        nuweb -t -p src $^@\\
+\mbox{}\verb@        $(MAKE) -C src@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb13c}{13c}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsubsection{Documentation Output}
+The documentation is produced by `weaving' the source text. All the
+documentation output is generated into a separation folder.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap20}\raggedright\small
+\NWtarget{nuweb14b}{} $\langle\,${\itshape make-doc}\nobreak\ {\footnotesize {14b}}$\,\rangle\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@@\\
+\mbox{}\verb@        mkdir -p doc@\\
+\mbox{}\verb@        nuweb -o -p doc $^@\\
+\mbox{}\verb@        pdflatex --output-directory doc $(basename $^).tex@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+\item \NWtxtMacroRefIn\ \NWlink{nuweb13c}{13c}.
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+Note: For all the cross references to be picked up correctly, this needs to be run at
+least twice.
+
+\section{Building and Compilation of Source}
+The source code is compiled using GNU Make.
+
+\subsection{Compile Configurations}
+The configuration options of the complilation step sits in common folder to be
+sharded across make files.
+
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap21}\raggedright\small
+\NWtarget{nuweb15a}{} \verb@"config.mk"@\nobreak\ {\footnotesize {15a}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@# Common Configuration File@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@## Default Compilers@\\
+\mbox{}\verb@CXX=g++@\\
+\mbox{}\verb@CC=gcc@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@## Flags for the C compiler@\\
+\mbox{}\verb@CCFLAGS  = -g @\\
+\mbox{}\verb@CCFLAGS += -Wpointer-arith@\\
+\mbox{}\verb@CCFLAGS += -Wshadow -Winit-self@\\
+\mbox{}\verb@CCFLAGS += -Wextra@\\
+\mbox{}\verb@CCFLAGS += -Wfloat-equal@\\
+\mbox{}\verb@CCFLAGS += -Wall@\\
+\mbox{}\verb@CCFLAGS += -std=c99 @\\
+\mbox{}\verb@CCFLAGS += -pedantic@\\
+\mbox{}\verb@CCFLAGS += -O3@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\subsection{Comiling Source}
+\begin{flushleft} \small
+\begin{minipage}{\linewidth}\label{scrap22}\raggedright\small
+\NWtarget{nuweb15b}{} \verb@"Makefile"@\nobreak\ {\footnotesize {15b}}$\equiv$
+\vspace{-1ex}
+\begin{list}{}{} \item
+\mbox{}\verb@#Makefile for Codebase@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@## Include the common configuration file@\\
+\mbox{}\verb@include config.mk@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@##Define phony targets@\\
+\mbox{}\verb@.PHONY: all clean@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@SOURCES=$(wildcard *.c)@\\
+\mbox{}\verb@OBJECTS=$(SOURCES:.c=.o)@\\
+\mbox{}\verb@TARGET=../simplecfd@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@all: $(TARGET)@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@$(TARGET): $(OBJECTS)@\\
+\mbox{}\verb@        $(CC) -o $@{\tt @}\verb@ $^@\\
+\mbox{}\verb@@\\
+\mbox{}\verb@%.o: %.c@\\
+\mbox{}\verb@        $(CC) $(CCFLAGS) -c $<@\\
+\mbox{}\verb@@{\NWsep}
+\end{list}
+\vspace{-1.5ex}
+\footnotesize
+\begin{list}{}{\setlength{\itemsep}{-\parsep}\setlength{\itemindent}{-\leftmargin}}
+
+\item{}
+\end{list}
+\end{minipage}\vspace{4ex}
+\end{flushleft}
+\end{document}

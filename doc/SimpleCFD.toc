@@ -1,0 +1,26 @@
+\contentsline {section}{\numberline {1}Todos}{3}{section.1}
+\contentsline {section}{\numberline {2}Introduction}{3}{section.2}
+\contentsline {section}{\numberline {3}mesh}{4}{section.3}
+\contentsline {subsection}{\numberline {3.1}Introduction}{4}{subsection.3.1}
+\contentsline {subsubsection}{\numberline {3.1.1}Data Structure}{4}{subsubsection.3.1.1}
+\contentsline {subsubsection}{\numberline {3.1.2}Mesh Definition}{4}{subsubsection.3.1.2}
+\contentsline {subsection}{\numberline {3.2}Generating Mesh}{6}{subsection.3.2}
+\contentsline {subsubsection}{\numberline {3.2.1}Generating Vertex List}{6}{subsubsection.3.2.1}
+\contentsline {subsubsection}{\numberline {3.2.2}Dynamic Memory Allocation}{9}{subsubsection.3.2.2}
+\contentsline {paragraph}{Memory Allocation}{9}{section*.4}
+\contentsline {paragraph}{Free Memory}{9}{section*.6}
+\contentsline {subsection}{\numberline {3.3}Exporting Mesh}{10}{subsection.3.3}
+\contentsline {subsubsection}{\numberline {3.3.1}VTK Header}{10}{subsubsection.3.3.1}
+\contentsline {subsubsection}{\numberline {3.3.2}Print Vertices}{11}{subsubsection.3.3.2}
+\contentsline {subsubsection}{\numberline {3.3.3}Printing Cells Information}{11}{subsubsection.3.3.3}
+\contentsline {subsection}{\numberline {3.4}Source file}{11}{subsection.3.4}
+\contentsline {section}{\numberline {4}preprocessor}{12}{section.4}
+\contentsline {section}{\numberline {5}postprocessor}{13}{section.5}
+\contentsline {section}{\numberline {6}Solver}{13}{section.6}
+\contentsline {section}{\numberline {A}Utilities}{13}{appendix.A}
+\contentsline {subsection}{\numberline {A.1}Root Makefile}{13}{subsection.A.1}
+\contentsline {subsubsection}{\numberline {A.1.1}Source Output}{14}{subsubsection.A.1.1}
+\contentsline {subsubsection}{\numberline {A.1.2}Documentation Output}{14}{subsubsection.A.1.2}
+\contentsline {section}{\numberline {B}Building and Compilation of Source}{14}{appendix.B}
+\contentsline {subsection}{\numberline {B.1}Compile Configurations}{14}{subsection.B.1}
+\contentsline {subsection}{\numberline {B.2}Comiling Source}{15}{subsection.B.2}
